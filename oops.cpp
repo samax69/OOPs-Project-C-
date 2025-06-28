@@ -24,18 +24,84 @@ public:
 
 class Light : public Device
 {
+public:
+    Light(string name) : Device(name) {}
+
+    void turnon(){
+        status = true;
+        cout << "You turned on " << name << "Light!" << endl;
+    }
+
+    void turnoff(){
+        status = false;
+        cout << "You turned off " << name << "Light!" << endl;
+    }
+
+    void showStatus(){
+        if(status){
+            cout << name << "Light is Turned On!" << endl;
+        }
+
+        else{
+            cout << name << "Light is Turned On!" << endl;
+        }
+    }
 };
 
 class Fan : public Device
 {
 private:
     int speed;
+
+public:
+    Fan(string name) : Device(name) {}
+
+    void turnon(){
+        status = true;
+        cout << "You turned on " << name << "Fan!" << endl;
+    }
+
+    void turnoff(){
+        status = false;
+        cout << "You turned off " << name << "Fan!" << endl;
+    }
+
+    void showStatus(){
+        if(status){
+            cout << name << "Fan is Turned On!" << endl;
+        }
+
+        else{
+            cout << name << "Fan is Turned On!" << endl;
+        }
+    }
 };
 
 class AC : public Device
 {
-};
+public:
+    AC(string name) : Device(name) {}
 
+    void turnon(){
+        status = true;
+        cout << "You turned on " << name << "AC!" << endl;
+    }
+
+    void turnoff(){
+        status = false;
+        cout << "You turned off " << name << "AC!" << endl;
+    }
+
+    void showStatus(){
+        if(status){
+            cout << name << "AC is Turned On!" << endl;
+        }
+
+        else{
+            cout << name << "AC is Turned On!" << endl;
+        }
+    }
+};
 
 class Room
 {
@@ -100,13 +166,11 @@ public:
     {
         return devices.size();
     }
-
-    
 };
 
 // User is Abstract Class
 class User
-{                  
+{
     int User_type; // 1. Owner , 2. Residence , 3. Guest
     string name;
 };
