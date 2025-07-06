@@ -16,11 +16,12 @@ public:
         status = false;
     }
 
-    void showStatus();
-    void turnoff();
-    void turnon();
+    virtual void showStatus() = 0;
+    virtual void turnoff() = 0;
+    virtual void turnon() = 0;
     ~Device() {}
 };
+
 
 class Light : public Device
 {
@@ -43,7 +44,7 @@ public:
         }
 
         else{
-            cout << name << "Light is Turned On!" << endl;
+            cout << name << "Light is Turned Off!" << endl;
         }
     }
 };
@@ -72,7 +73,7 @@ public:
         }
 
         else{
-            cout << name << "Fan is Turned On!" << endl;
+            cout << name << "Fan is Turned Off!" << endl;
         }
     }
 };
@@ -98,7 +99,7 @@ public:
         }
 
         else{
-            cout << name << "AC is Turned On!" << endl;
+            cout << name << "AC is Turned Off!" << endl;
         }
     }
 };
@@ -107,6 +108,7 @@ class Room
 {
     string Room_name;
     vector<Device *> devices;
+    friend class SHMS;
 
 public:
     Room(string name)
@@ -141,11 +143,6 @@ public:
 
     void ControlDevice(int idx, bool on)
     {
-        if (idx < 0 || idx >= devices.size())
-        {
-            cout << "Invalid Device Index!" << endl;
-            return;
-        }
 
         if (on)
         {
@@ -168,31 +165,83 @@ public:
     }
 };
 
+enum User_Type
+{
+    OWNER,
+    RESIDENT,
+    GUEST
+};
+
 // User is Abstract Class
 class User
 {
-    int User_type; // 1. Owner , 2. Residence , 3. Guest
+    protected:
+    User_Type usertype; 
     string name;
+
+    public:
+    User(string Name , User_Type type)
+    {
+        name = Name;
+        usertype = type;
+    }
+
+    virtual bool canControl(Device* device) = 0; // Abstract method to check if user can control devices
+    string getName(){
+        return name;
+    }
+
+    User_Type getUserType(){
+        return usertype;
+    }
+
+    virtual ~User() {} // Virtual destructor for proper cleanup
 };
+
+
 
 class Owner : public User
 {
+    public:
+    Owner(string Name) : User(Name, OWNER) {}
+
+    bool canControl(Device* device){
+        return true; // Owner can control all devices
+    }
 };
 
 class Resident : public User
 {
+    public:
+    Resident(string Name) : User(Name, RESIDENT) {}
+    bool canControl(Device* device){
+        // Residents can control only lights and fans
+        return dynamic_cast<Light*>(device) != nullptr || dynamic_cast<Fan*>(device) != nullptr;
+    }
 };
 
 class Guest : public User
 {
+    public:
+    Guest(string Name) : User(Name, GUEST) {}
+    bool canControl(Device* device){
+        // Guests can't control any devices
+        return false;
+    }
 };
 
 class SHMS
 {
 private:
     vector<Room *> rooms;
+    User* currentUser = NULL;
 
 public:
+    void setCurrentUser(User* user)
+    {
+        currentUser = user;
+    }
+
     void add_rooms(Room *room)
     {
         rooms.push_back(room);
@@ -202,6 +251,12 @@ public:
 
     void control()
     {
+        if (currentUser == NULL)
+        {
+            cout << "No User is Logged In!" << endl;
+            return;
+        }
+
         while (true)
         {
             cout << "Select The Room : " << endl;
@@ -231,14 +286,27 @@ public:
                 continue;
             }
 
+            
             // In this part we will select a device
-
             room->list_devices();
 
             cout << "Select Device Index : ";
 
             int deviceIdx;
             cin >> deviceIdx;
+
+            if(deviceIdx < 0 || deviceIdx >= room->device_count())
+            {
+                cout << "Invalid Device Index!" << endl;
+                continue;
+            }
+
+            Device *device = room->devices[deviceIdx];
+            if (!currentUser->canControl(device))
+            {
+                cout << "You don't have permission to control this device!" << endl;
+                continue;
+            }
 
             cout << "1. Turn On" << endl
                  << "2. Turn Off" << endl;
