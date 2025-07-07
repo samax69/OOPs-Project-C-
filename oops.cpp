@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include<bits/stdc++.h>
 using namespace std;
 
 // Abstract Class
@@ -337,4 +338,18 @@ public:
 
 int main()
 {
+    // here We can use username and password for login
+    // to implement this we can use a map to store username and password
+    unordered_map<string , pair<string , User*>> users; // username -> (password, User*)>
+    users["owner123"] = make_pair("owner#123" , new Owner("Vaibhav"));
+    users["resident123"] = make_pair("resident#123" , new Resident("Muskan"));
+    users["guest123"] = make_pair("guest#123" , new Guest("Vicky"));
+
+    string user_name;
+    string password;
+    cout << "Enter Username: ";
+    cin >> user_name;
+    cout << "Enter Password: ";
+    cin >> password;
+    
 }
