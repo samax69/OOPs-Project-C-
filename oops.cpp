@@ -351,5 +351,17 @@ int main()
     cin >> user_name;
     cout << "Enter Password: ";
     cin >> password;
+
+   // Check if user exists
+    if (users.find(user_name) == users.end() || users[user_name].first != password)
+    {
+        cout << "Invalid Username or Password!" << endl;
+        return 0;
+    }
+
+    
+
+    
+    return 0;
     
 }
