@@ -1,0 +1,24 @@
+{
+  "name": "oops-project",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samax69/OOps-project-C-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samax69/OOps-project-C-/issues"
+  },
+  "homepage": "https://github.com/samax69/OOps-project-C-#readme",
+  "description": "",
+  "devDependencies": {
+    "electron": "^37.2.3"
+  }
+}
