@@ -253,75 +253,56 @@ public:
         rooms.push_back(room);
     }
 
-    // here SHMS Control Pannel
+   // get a list of all rooms so that user can select a room
+    vector<string> getRoomNames(){
+        vector<string> roomNames;
+        for (auto &room : rooms)
+        {
+            roomNames.push_back(room->get_room_name());
+        }
+        return roomNames;
+    }
 
-    void control()
+    // get device names for a room index
+    vector<string> getDeviceNames(int roomIndex)
     {
-        if (currentUser == NULL)
+        vector<string> deviceNames;
+        if (roomIndex >= 0 && roomIndex < rooms.size())
         {
-            cout << "No User is Logged In!" << endl;
-            return;
+            Room* room = rooms[roomIndex];
+            for (int i = 0; i < room->device_count(); i++)
+            {
+                deviceNames.push_back(room->devices[i]->name);
+            }
+        }
+        return deviceNames;
+    }
+
+    // check if the current user can control a device
+    bool canCurrentUserControl(int roomIndex, int deviceIndex)
+    {
+        if (currentUser == NULL || roomIndex < 0 || roomIndex >= rooms.size())
+        {
+            return false;
+        }
+        Room* room = rooms[roomIndex];
+        if (deviceIndex < 0 || deviceIndex >= room->device_count())
+        {
+            return false; // Invalid device index
+        }
+        Device* device = room->devices[deviceIndex];
+        return currentUser->canControl(device);
+    }
+    
+
+    // control a device in a room
+    string controlDevice(int roomIndex, int deviceIndex, bool turnOn){
+        if (!canCurrentUserControl(roomIndex, deviceIndex)) {
+            return "You don't have permission to control this device!";
         }
 
-        while (true)
-        {
-            cout << "Select The Room : " << endl;
-            for (int i = 0; i < rooms.size(); i++)
-            {
-                cout << i << "." << rooms[i]->get_room_name() << endl;
-            }
-
-            cout << "For Exit Enter : " << rooms.size() << endl;
-
-            int room_idx;
-            cin >> room_idx;
-
-            if (room_idx == rooms.size())
-                break;
-
-            if (room_idx < 0 && room_idx > rooms.size())
-            {
-                cout << "You Selected Invalid Room!" << endl;
-                continue;
-            }
-
-            Room *room = rooms[room_idx];
-            if (room->device_count() == 0)
-            {
-                cout << "This Room has no Devices!" << endl;
-                continue;
-            }
-
-            
-            // In this part we will select a device
-            room->list_devices();
-
-            cout << "Select Device Index : ";
-
-            int deviceIdx;
-            cin >> deviceIdx;
-
-            if(deviceIdx < 0 || deviceIdx >= room->device_count())
-            {
-                cout << "Invalid Device Index!" << endl;
-                continue;
-            }
-
-            Device *device = room->devices[deviceIdx];
-            if (!currentUser->canControl(device))
-            {
-                cout << "You don't have permission to control this device!" << endl;
-                continue;
-            }
-
-            cout << "1. Turn On" << endl
-                 << "2. Turn Off" << endl;
-
-            int cmd;
-            cin >> cmd;
-
-            room->ControlDevice(deviceIdx, cmd == 1);
-        }
+        rooms[roomIndex]->ControlDevice(deviceIndex, turnOn);
+        return "Device control successful!";
     }
 
     void showAll()
@@ -364,8 +345,34 @@ int main()
         return 0;
     }
 
-    
+    User* currentUser = users[user_name].second;
 
+    // Create SHMS instance and set current user
+    SHMS home;
+    home.setCurrentUser(currentUser);
+
+    // adding rooms and devices
+    Room *livingRoom = new Room("Living Room");
+    livingRoom->add_device(new Light("Living Room "));
+    livingRoom->add_device(new Fan("Living Room "));
+    livingRoom->add_device(new AC("Living Room "));
+    home.add_rooms(livingRoom);
+
+    Room *bedRoom = new Room("Bed Room");
+    bedRoom->add_device(new Light("Bed Room "));
+    bedRoom->add_device(new Fan("Bed Room "));
+    bedRoom->add_device(new AC("Bed Room "));
+    home.add_rooms(bedRoom);
+
+    Room *kitchen = new Room("Kitchen");
+    kitchen->add_device(new Light("Kitchen "));
+    home.add_rooms(kitchen);
+
+    Room *GuestRoom = new Room("Guest Room");
+    GuestRoom->add_device(new Light("Guest Room ")); 
+    GuestRoom->add_device(new Fan("Guest Room "));
+    GuestRoom->add_device(new AC("Guest Room "));
+    home.add_rooms(GuestRoom);
     
     return 0;
     
